@@ -16,7 +16,7 @@ def article_json(request, article_id):
 
 def all_articles(request):
 
-	res = [a.id_from_pk() for a in Article.objects.all()]
+	res = [a.forJSONList() for a in Article.objects.all()]
 
 	return HttpResponse(json.dumps(res))
 	

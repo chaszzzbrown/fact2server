@@ -45,11 +45,20 @@ class Article(models.Model):
 			'article_id': self.id_from_pk(),
 			'article_type': self.article_type,
 			'difficulty': self.difficulty,
+			'layout': self.layout,
 			'headline': self.headline,
 			'photo_url': self.photo.url if self.photo else '',
 			'chunk1': self.chunk1,
 			'chunk2': self.chunk2,
 			'chunk3': self.chunk3,
+		}
+
+	def forJSONList(self):
+		return { 
+			'article_id': self.id_from_pk(),
+			'article_type': self.article_type,
+			'difficulty': self.difficulty,
+			'headline': self.headline,
 		}
 
 	def __unicode__(self):
