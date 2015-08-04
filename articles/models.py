@@ -1,6 +1,7 @@
 from django.db import models
 
 import re
+import datetime
 
 # Create your models here.
 
@@ -19,6 +20,8 @@ class Article(models.Model):
 	DIFFICULTIES = tuple((x,x) for x in ("easy", "medium", "hard"))
 	LAYOUTS = tuple(('layout%d'%i, 'Layout %d'%i) for i in range(1,6))
 
+	enabled = models.BooleanField(default=True)
+
 	article_type = models.CharField(max_length=32, choices=ARTICLE_TYPES)
 	difficulty = models.CharField(max_length=16, choices=DIFFICULTIES)
 	layout = models.CharField(max_length=16, choices=LAYOUTS)
@@ -28,6 +31,15 @@ class Article(models.Model):
 	chunk1 = models.TextField(default='', blank=True)
 	chunk2 = models.TextField(default='', blank=True)
 	chunk3 = models.TextField(default='', blank=True)
+
+	# for the "show info" dialog
+	source = models.TextField(max_length=160, blank=True, default='')
+	author = models.TextField(max_length=160, blank=True, default='')
+	references = models.TextField(blank=True, default='')
+
+	# adminn-ing
+	created_date = models.DateField(auto_now_add=True)
+	modified_date = models.DateField(auto_now=True)
 
 	@staticmethod
 	def pk_from_id(article_id):
@@ -47,10 +59,15 @@ class Article(models.Model):
 			'difficulty': self.difficulty,
 			'layout': self.layout,
 			'headline': self.headline,
-			'photo_url': self.photo.url if self.photo else '',
+			'photo_url': self.photo.url if self.photo else '/media/default_im.png',
 			'chunk1': self.chunk1,
 			'chunk2': self.chunk2,
 			'chunk3': self.chunk3,
+			'info': {
+				'source': self.source,
+				'author': self.author,
+				'references': self.references,
+			},
 		}
 
 	def forJSONList(self):
