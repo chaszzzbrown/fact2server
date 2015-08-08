@@ -22,9 +22,9 @@ class Article(models.Model):
 
 	enabled = models.BooleanField(default=True)
 
-	article_type = models.CharField(max_length=32, choices=ARTICLE_TYPES)
-	difficulty = models.CharField(max_length=16, choices=DIFFICULTIES)
-	layout = models.CharField(max_length=16, choices=LAYOUTS)
+	article_type = models.CharField(max_length=32, choices=ARTICLE_TYPES, default='news')
+	difficulty = models.CharField(max_length=16, choices=DIFFICULTIES, default='easy')
+	layout = models.CharField(max_length=16, choices=LAYOUTS, default='layout1')
 
 	headline = models.TextField(default='', blank=True)
 	photo = models.ImageField(blank=True)
@@ -36,10 +36,15 @@ class Article(models.Model):
 	source = models.TextField(max_length=160, blank=True, default='')
 	author = models.TextField(max_length=160, blank=True, default='')
 	references = models.TextField(blank=True, default='')
+	tone = models.CharField(max_length=80, default='', blank=True)
 
 	# adminn-ing
+	source_URL = models.TextField(default='', blank=True)
 	created_date = models.DateField(auto_now_add=True)
 	modified_date = models.DateField(auto_now=True)
+
+	class Meta:
+		ordering = ('-created_date',)
 
 	@staticmethod
 	def pk_from_id(article_id):
@@ -67,7 +72,9 @@ class Article(models.Model):
 				'source': self.source,
 				'author': self.author,
 				'references': self.references,
+				'tone': self.tone,
 			},
+			'source_URL': self.source_URL,
 		}
 
 	def forJSONList(self):
@@ -79,7 +86,7 @@ class Article(models.Model):
 		}
 
 	def __unicode__(self):
-		return '('+self.id_from_pk()+') '+self.headline
+		return '('+self.id_from_pk()+') '+self.headline+' ['+self.article_type+']'
 
 
 
