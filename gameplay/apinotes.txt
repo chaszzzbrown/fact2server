@@ -7,13 +7,10 @@ POST creates the record; 400 if already exists
 
 /player/<pk>/
 GET gets the record; 404 if not found
-PUT modifies the record using json passed in
+PUT modifies the record using json passed in; 404 if not found
 
 /player/<pk>/games/
 GET gets a list of all game_info records for this player
-
-/player/<pk>/current_game/
-GET gets the current game record; 404 if no game available
 
 /player/<pk>/begin_new_game/ difficulty=<difficulty> total_stories=<total_stories> feedback_version=<feedback_version> scoring_version=<scoring_version>
 POST creates a new game_info with pk=<game_info.pk>; JSON fields default to model default, returns same as /game_info/<game_info.pk>/
@@ -21,6 +18,7 @@ POST creates a new game_info with pk=<game_info.pk>; JSON fields default to mode
 /player/<pk>/end_current_game/
 POST returns the game_info for the current game and then clears out the current_game record in the playerInfo record
 
+/player/<pk>/current_game/
 /game_info/<pk>/
 GET returns the info; 404 if not found
 PROVISIONAL: PUT modifies the record using JSON passed in? or not... might be useful during development, but could also use admin interface...
@@ -46,10 +44,14 @@ GET gets the info; 404 if not found
 PUT modifies the record using JSON passed in
 	examples: chunk2_requested=true
 
-/article/<pk>/
+/player/<pk>/current_game/current_round/article/
+/game_info/<pk>/current_round/article/
+/game_round/<pk>/article/
+/article/<pk>/article/
 GET returns the article information
 
 /articles/ difficulty=<difficulty>
 GET returns a list of all articles if difficulty is not present; else filtered for difficulty
 
-/reports/
+/reports/... ?
+
