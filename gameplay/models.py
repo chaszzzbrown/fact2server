@@ -53,7 +53,7 @@ class PlayerInfo(models.Model):
 
 class GameInfo(models.Model):
 
-	player_info = models.ForeignKey('PlayerInfo')
+	player_info = models.ForeignKey('PlayerInfo', related_name='game_infos')
 
 	is_completed = models.BooleanField(default=False)
 
