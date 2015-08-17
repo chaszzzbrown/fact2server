@@ -9,7 +9,7 @@ import json
 # Create your views here.
 
 def article_json(request, article_id):
-	pk = Article.pk_from_id(article_id)
+	pk = article_id # Article.pk_from_id(article_id)
 
 	article = Article.objects.get(pk=pk)
 	return HttpResponse(json.dumps(article.forJSON()))

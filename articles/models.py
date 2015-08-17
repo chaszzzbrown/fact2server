@@ -75,6 +75,7 @@ class Article(models.Model):
 				'tone': self.tone,
 			},
 			'source_URL': self.source_URL,
+			'pk': self.pk,
 		}
 
 	def forJSONList(self):
@@ -83,6 +84,7 @@ class Article(models.Model):
 			'article_type': self.article_type,
 			'difficulty': self.difficulty,
 			'headline': self.headline,
+			'pk': self.pk,
 		}
 
 	def __unicode__(self):

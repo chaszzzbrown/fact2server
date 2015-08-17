@@ -20,9 +20,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from articles import urls as article_urls
+from gameplay import urls as gameplay_urls
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^article/', include(article_urls)),
+    url(r'^gameplay/', include(gameplay_urls)),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

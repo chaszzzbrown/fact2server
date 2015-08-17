@@ -1,3 +1,4 @@
+import random
 from django.db import models
 
 from articles.models import Article
@@ -36,17 +37,52 @@ class PlayerInfo(models.Model):
 	created_date = models.DateTimeField(auto_now_add=True)
 	modified_date = models.DateTimeField(auto_now=True)
 
-	# maybe...?
+	has_completed_survey = models.BooleanField(default=False)
+
 	current_game = models.ForeignKey('GameInfo', null=True, blank=True)
 
-	def start_new_game(self, difficulty, max_stories, feedback_version, scoring_version):
-		pass
+	def begin_new_game(self, difficulty="easy", max_rounds=10, feedback_version="snarky", scoring_version=1):
+
+		self.end_current_game()
+
+		new_game = GameInfo(player_info=self, difficulty=difficulty, max_rounds=max_rounds, feedback_version=feedback_version, scoring_version=scoring_version)
+		new_game.save()
+
+		self.current_game = new_game
+		self.save()
 
 	def get_random_unplayed_article(self, difficulty=None, exclude_articles=None):
-		pass
+		count = Article.objects.all().count()
+		return Article.objects.get(pk=random.randint(1, count))
 
-	def end_game(self):
-		pass
+	def end_current_game(self):
+
+		if self.current_game is None:
+			return None
+
+		g = self.current_game
+
+		game_is_being_cancelled = False
+
+		if g.current_round and not self.current_game.current_round.is_completed:
+			game_is_being_cancelled = True
+			g.end_round('cancel')
+
+		num_current_rounds = GameRound.objects.filter(game_info=g).count()
+		if num_current_rounds < g.max_rounds:
+			game_is_being_cancelled = True
+
+		if game_is_being_cancelled:
+			g.was_cancelled = True
+
+		g.is_completed = True
+		g.save()
+
+		self.current_game = None
+		self.save()
+
+		return g
+
 
 	def __unicode__(self):
 		return self.username
@@ -57,8 +93,10 @@ class GameInfo(models.Model):
 
 	is_completed = models.BooleanField(default=False)
 
+	was_cancelled = models.BooleanField(default=False)
+
 	difficulty = models.CharField(max_length=16, choices=Article.DIFFICULTIES)
-	max_stories = models.IntegerField(default=10)
+	max_rounds = models.IntegerField(default=10)
 
 	feedback_version = models.CharField(max_length=16, choices=(('friendly', 'friendly'), ('snarky', 'snarky'),), default='friendly')
 	scoring_version = models.IntegerField(default=1)
@@ -72,22 +110,56 @@ class GameInfo(models.Model):
 	current_round_index = models.IntegerField(default=0, editable=False)
 	game_round_list = models.TextField(default='[]')
 
+	total_score = models.IntegerField(default=0)
+
+	max_passes = models.IntegerField(default=3)
+	total_passes = models.IntegerField(default=0)
+
 	def started_articles(self):
 		pass
 
 	def start_new_round(self):
-		pass
+		new_article = self.player_info.get_random_unplayed_article()
+		new_round = GameRound(player_info=self.player_info, game_info=self, article=new_article)
+		new_round.save()
 
-	def end_round(self, user_guess):
-		pass
+		self.current_round = new_round
+		self.current_round_index = GameRound.objects.filter(game_info=self).count()
+		self.save()
+
+		return new_round
+
+	def end_round(self, player_guess):
+		self.current_round.player_guess = player_guess
+		self.current_round.is_completed = True
+		self.current_round.guess_correct = (self.current_round.article.article_type==self.current_round.player_guess)
+		self.current_round.save()
+
+		round_score = self.score_round()
+		round_status = {'guess': player_guess, 'correct_answer': self.current_round.article.article_type, 'round_score': round_score, }
+
+		if player_guess=='pass':
+			self.total_passes += 1
+		self.current_round = None
+		self.total_score += round_score
+		self.save()
+
+		return round_status
+
+	def score_round(self):
+		if self.current_round.article.article_type==self.current_round.player_guess:
+			round_score = 10
+		else:
+			round_score = 0
+		return round_score
 
 	def __unicode__(self):
-		return 'Gameid '+str(self.pk)+': '+self.player_info.username + ' [' + ('completed' if self.is_completed else 'in play') + ']'
+		return 'Gameid '+str(self.pk)+': '+self.player_info.username + ' [' + ('cancelled' if self.was_cancelled else ('completed' if self.is_completed else 'in play')) + ']'
 
 class GameRound(models.Model):
 
 	player_info = models.ForeignKey('PlayerInfo')
-	game_info = models.ForeignKey('GameInfo')
+	game_info = models.ForeignKey('GameInfo', related_name='game_rounds')
 
 	article = models.ForeignKey(Article)
 
@@ -101,6 +173,11 @@ class GameRound(models.Model):
 	show_info_requested = models.BooleanField(default=False)
 
 	player_guess = models.CharField(max_length=16, default='', blank=True)
+	guess_correct = models.BooleanField(default=False)
+
+	@property
+	def duration(self):
+		return (self.end_time-self.start_time).total_seconds()
 
 	def __unicode__(self):
 		return self.game_info.__unicode__()+ ' [round ' + ('completed' if self.is_completed else 'in play') + '] '+self.article.__unicode__()
