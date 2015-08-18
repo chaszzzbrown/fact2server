@@ -1,62 +1,62 @@
 Key: x = won't implement; * will/did implement; ? hasn't done yet
 
-/players/
+/api/gameplay/players/
 ? GET a list of players
 
-/player/?username=<text>
+/api/gameplay/player/ username=<text>
 * GET gets the record from json username; 404 if not existing
 * POST creates the record NOTE: USERNAME MUST BE POSTED IN BODY AS JSON; 400 if already exists; returns initialized json
 
-/player/<pk>/
+/api/gameplay/player/<pk>/
 * GET gets the record; 404 if not found
 * PUT modifies the record using json passed in; 404 if not found; returns the json
 
-/player/<pk>/begin_new_game/ difficulty=<difficulty> total_stories=<total_stories> feedback_version=<feedback_version> scoring_version=<scoring_version>
+/api/gameplay/player/<pk>/begin_new_game/ difficulty=<difficulty> total_stories=<total_stories> feedback_version=<feedback_version> scoring_version=<scoring_version>
 * POST creates a new game_info; JSON fields default to model default, links to player_info.current_game
 	returns json {'player_info': player_info, 'game_info': game_info}
 # during development, fills in game_round pk_list in GameInfo record?
 
-/player/<pk>/end_current_game/
+/api/gameplay/player/<pk>/end_current_game/
 * POST returns the game_info for the current (ending) game and then clears out the current_game record in the playerInfo record
 	returns json {'player_info': player_info, 'game_info': game_info}
 
-/game_info/<pk>/
+/api/gameplay/game_info/<pk>/
 * GET returns the info; 404 if not found
 ? PROVISIONAL: PUT modifies the record using JSON passed in? or not... might be useful during development, but could also use admin interface...
 
-/game_info/<pk>/start_new_round/
+/api/gameplay/game_info/<pk>/start_new_round/
 * POST returns JSON:
 	new_round: the full info (including article info) for the game_round record
 	game_info: the updated game_info record
 
-/game_info/<pk>/end_current_round/ guess=<user's_guess>
+/api/gameplay/game_info/<pk>/end_current_round/ guess=<user's_guess>
 * POST returns JSON:
 	round_status: {'guess': player_guess, 'correct_answer': article_type, 'score': round_score, }
 	game_info: the updated game_info record
 
-/game_round/<pk>/
+/api/gameplay/game_round/<pk>/
 * GET gets the info; 404 if not found
 
-/game_round/<pk>/
+/api/gameplay/game_round/<pk>/
 * PUT modifies the record using JSON passed in
 	examples: chunk2_requested=true
 	returns the current_rounds info.
 
-/game_round_details/<pk>/
+/api/gameplay/game_round_details/<pk>/
 * GET gets the info; 404 if not found
 	returns the current_rounds info, including the JSON for the related article.
 * PUT modifies the record using JSON passed in
 	examples: chunk2_requested=true
 	returns the current_rounds info, including the JSON for the related article.
 
-/article/id/<article_id>/
+/api/article/id/<article_id>/
 * GET returns the article information
 
-/article/<pk>/
+/api/article/<pk>/
 * GET returns the article information
 
-/articles/ difficulty=<difficulty>
+/api/articles/ difficulty=<difficulty>
 ? GET returns a list of all articles if difficulty is not present; else filtered for difficulty
 
-/reports/... ?
+/api/reports/... ?
 

@@ -29,9 +29,12 @@ def player_info(request, pk=None):
 	if request.method=='GET':
 		if pk is None:
 			try:
-				p = PlayerInfo.objects.get(username=request.GET['username'])
-			except KeyError:
+				username = request.GET['username']
+			except (KeyError, ValueError,):
 				return HttpResponse('no username specified', status=status.HTTP_400_BAD_REQUEST)
+
+			try:
+				p = PlayerInfo.objects.get(username=username)
 			except PlayerInfo.DoesNotExist:
 				return HttpResponse('not found', status=status.HTTP_404_NOT_FOUND)
 		else:
@@ -150,8 +153,8 @@ def game_end_round(request, pk):
 		return HttpResponse('current round is already complete', status=status.HTTP_400_BAD_REQUEST)
 
 	try:
-		guess = request.GET['guess']
-	except KeyError:
+		guess = json.loads(request.body)['guess']
+	except (ValueError, KeyError):
 		return HttpResponse('missing guess parameter', status=status.HTTP_400_BAD_REQUEST)
 
 	round_status = g.end_round(guess)
