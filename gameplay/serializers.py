@@ -8,7 +8,8 @@ class GameRoundSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = GameRound
 		fields = ('pk', 'is_completed', 'player_info', 'game_info', 'article', 'start_time', 'end_time', 'duration',
-					'is_completed', 'chunk2_requested', 'chunk3_requested', 'show_info_requested', 'player_guess', 'guess_correct')
+					'is_completed', 'chunk2_requested', 'chunk3_requested', 'show_info_requested', 'player_guess', 'guess_correct',
+					'potential_score', 'actual_score', )
 
 class GameRoundStatusSerializer(serializers.ModelSerializer):
 

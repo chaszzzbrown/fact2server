@@ -121,6 +121,7 @@ class GameInfo(models.Model):
 	def start_new_round(self):
 		new_article = self.player_info.get_random_unplayed_article()
 		new_round = GameRound(player_info=self.player_info, game_info=self, article=new_article)
+		new_round.potential_score = self.score_round(new_round, assume_correct=True)
 		new_round.save()
 
 		self.current_round = new_round
@@ -133,9 +134,10 @@ class GameInfo(models.Model):
 		self.current_round.player_guess = player_guess
 		self.current_round.is_completed = True
 		self.current_round.guess_correct = (self.current_round.article.article_type==self.current_round.player_guess)
+		round_score = self.score_round()
+		self.current_round.actual_score = round_score
 		self.current_round.save()
 
-		round_score = self.score_round()
 		round_status = {'guess': player_guess, 'correct_answer': self.current_round.article.article_type, 'round_score': round_score, }
 
 		if player_guess=='pass':
@@ -146,9 +148,17 @@ class GameInfo(models.Model):
 
 		return round_status
 
-	def score_round(self):
-		if self.current_round.article.article_type==self.current_round.player_guess:
-			round_score = 10
+	def score_round(self, round=None, assume_correct=False):
+		if round is None:
+			round = self.current_round
+		if assume_correct or round.article.article_type==round.player_guess:
+			round_score = 40
+			if round.chunk2_requested:
+				round_score -= 10
+			if round.chunk3_requested:
+				round_score -= 10
+			if round.show_info_requested:
+				round_score -= 10
 		else:
 			round_score = 0
 		return round_score
@@ -174,6 +184,9 @@ class GameRound(models.Model):
 
 	player_guess = models.CharField(max_length=16, default='', blank=True)
 	guess_correct = models.BooleanField(default=False)
+
+	potential_score = models.IntegerField(default=30)
+	actual_score = models.IntegerField(default=30)
 
 	@property
 	def duration(self):

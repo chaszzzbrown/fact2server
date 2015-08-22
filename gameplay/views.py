@@ -209,7 +209,7 @@ def game_round_full_info(request, pk, full_info=True):
 
 		return JSONResponse(data, status=status.HTTP_200_OK)
 
-	elif request.method=='PUT':
+	elif request.method=='POST':
 		try:
 			data = json.loads(request.body)
 		except ValueError:
@@ -218,6 +218,8 @@ def game_round_full_info(request, pk, full_info=True):
 		serializer = GameRoundStatusSerializer(gr, data=data, partial=True)
 		if serializer.is_valid():
 			serializer.save()
+			gr.potential_score = gr.game_info.score_round(gr, assume_correct=True)
+			gr.save()
 
 			serializer = GameRoundSerializer(gr)
 
