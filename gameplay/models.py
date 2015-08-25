@@ -31,7 +31,7 @@ class PlayerInfo(models.Model):
 	education = models.CharField(choices=EDUCATION, default='other', max_length=32)
 	computer_use = models.IntegerField(default=0)
 	news_media_savvy = models.IntegerField(default=3, choices=SAVVY_LIKERT)
-	news_source = models.CharField(max_length=36)
+	news_source = models.CharField(max_length=36, default='', blank=True)
 
 	# adminn-ing
 	created_date = models.DateTimeField(auto_now_add=True)
