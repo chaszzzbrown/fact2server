@@ -76,6 +76,10 @@ class PlayerInfo(models.Model):
 			g.was_cancelled = True
 
 		g.is_completed = True
+
+		if not game_is_being_cancelled:
+			g.total_score += g.end_of_game_bonus()
+
 		g.save()
 
 		self.current_game = None
@@ -98,6 +102,8 @@ class GameInfo(models.Model):
 	difficulty = models.CharField(max_length=16, choices=Article.DIFFICULTIES)
 	max_rounds = models.IntegerField(default=10)
 
+	max_time = models.IntegerField(default=3*60)
+
 	feedback_version = models.CharField(max_length=16, choices=(('friendly', 'friendly'), ('snarky', 'snarky'),), default='friendly')
 	scoring_version = models.IntegerField(default=1)
 
@@ -114,6 +120,10 @@ class GameInfo(models.Model):
 
 	max_passes = models.IntegerField(default=3)
 	total_passes = models.IntegerField(default=0)
+
+	@property
+	def total_time(self):
+		return sum(int(r.duration) for r in GameRound.objects.filter(game_info=self, is_completed=True))
 
 	def started_articles(self):
 		pass
@@ -154,14 +164,27 @@ class GameInfo(models.Model):
 		if assume_correct or round.article.article_type==round.player_guess:
 			round_score = 40
 			if round.chunk2_requested:
-				round_score -= 10
+				round_score -= 0
 			if round.chunk3_requested:
-				round_score -= 10
+				round_score -= 0
 			if round.show_info_requested:
-				round_score -= 10
-		else:
+				round_score -= 0
+		elif round.player_guess=="cancel":
 			round_score = 0
+		elif round.player_guess=="pass":
+			if self.total_passes<self.max_passes:
+				round_score = 0
+			else:
+				round_score = -5
+		else:
+			round_score = -10
 		return round_score
+
+	def end_of_game_bonus(self):
+		bonus = 0
+		if self.max_time > self.total_time:
+			bonus += 20
+		return bonus			
 
 	def __unicode__(self):
 		return 'Gameid '+str(self.pk)+': '+self.player_info.username + ' [' + ('cancelled' if self.was_cancelled else ('completed' if self.is_completed else 'in play')) + ']'

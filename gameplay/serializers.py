@@ -24,14 +24,14 @@ class GameInfoSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = GameInfo
 		fields = ('pk', 'player_info', 'total_score', 'max_passes', 'total_passes', 'is_completed', 'difficulty', 'max_rounds', 'feedback_version', 'scoring_version', 
-					'created_time', 'modified_time', 'current_round', 'current_round_index', 'game_round_list', 'game_rounds',)
+					'created_time', 'modified_time', 'current_round', 'current_round_index', 'game_round_list', 'game_rounds', 'total_time', 'max_time', )
 
 class GameInfoShortSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = GameInfo
-		fields = ('pk', 'player_info', 'total_score', 'is_completed', 'difficulty', 'max_rounds', 'feedback_version', 'scoring_version', 
-					'created_time', 'modified_time', 'current_round', 'current_round_index', 'game_round_list')
+		fields = ('pk', 'player_info', 'total_score', 'is_completed', 'difficulty', 'max_rounds', 'max_time', 'feedback_version', 'scoring_version', 
+					'created_time', 'modified_time', 'current_round', 'current_round_index', 'game_round_list', 'total_time')
 
 class PlayerInfoSerializer(serializers.ModelSerializer):
 	game_infos = GameInfoShortSerializer(many=True, read_only=True)
