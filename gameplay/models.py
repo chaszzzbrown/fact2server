@@ -75,10 +75,11 @@ class PlayerInfo(models.Model):
 		if game_is_being_cancelled:
 			g.was_cancelled = True
 
-		g.is_completed = True
+		g.game_bonus = g.end_of_game_bonus() 
 
-		if not game_is_being_cancelled:
-			g.total_score += g.end_of_game_bonus()
+		g.total_score += g.game_bonus
+
+		g.is_completed = True
 
 		g.save()
 
@@ -102,7 +103,7 @@ class GameInfo(models.Model):
 	difficulty = models.CharField(max_length=16, choices=Article.DIFFICULTIES)
 	max_rounds = models.IntegerField(default=10)
 
-	max_time = models.IntegerField(default=3*60)
+	max_time = models.IntegerField(default=1*60)
 
 	feedback_version = models.CharField(max_length=16, choices=(('friendly', 'friendly'), ('snarky', 'snarky'),), default='friendly')
 	scoring_version = models.IntegerField(default=1)
@@ -117,6 +118,8 @@ class GameInfo(models.Model):
 	game_round_list = models.TextField(default='[]')
 
 	total_score = models.IntegerField(default=0)
+
+	game_bonus = models.IntegerField(default=0)
 
 	max_passes = models.IntegerField(default=3)
 	total_passes = models.IntegerField(default=0)
@@ -182,7 +185,7 @@ class GameInfo(models.Model):
 
 	def end_of_game_bonus(self):
 		bonus = 0
-		if self.max_time > self.total_time:
+		if self.max_time > self.total_time or self.current_round_index>=self.max_rounds:
 			bonus += 20
 		return bonus			
 
