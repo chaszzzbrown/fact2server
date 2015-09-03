@@ -52,8 +52,15 @@ class PlayerInfo(models.Model):
 		self.save()
 
 	def get_random_unplayed_article(self, difficulty=None, exclude_articles=None):
-		count = Article.objects.all().count()
-		return Article.objects.get(pk=random.randint(1, count))
+
+		used_articles = [r.article.pk for r in GameRound.objects.filter(game_info=self.current_game)]
+
+		available_articles = list(Article.objects.all().exclude(pk__in=used_articles))
+
+		return random.choice(available_articles)
+
+		# count = Article.objects.all().count()
+		# return Article.objects.get(pk=random.randint(1, count))
 
 	def end_current_game(self):
 
