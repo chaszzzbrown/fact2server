@@ -110,7 +110,9 @@ def player_end_game(request, pk):
 		except PlayerInfo.DoesNotExist:
 			return HttpResponse('not found', status=status.HTTP_404_NOT_FOUND)
 
-		ended_game = p.end_current_game()
+		data = json.loads(request.body)
+		tot_time = data.get('tot_time', None)
+		ended_game = p.end_current_game(tot_time)
 
 		serp = PlayerInfoSerializer(p)
 		serg = GameInfoSerializer(ended_game) 

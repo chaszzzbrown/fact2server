@@ -5,6 +5,8 @@ from articles.models import Article
 
 # Create your models here.
 
+INCLUDE_PASSES = False
+
 class PlayerInfo(models.Model):
 
 	GENDERS = (
@@ -41,7 +43,7 @@ class PlayerInfo(models.Model):
 
 	current_game = models.ForeignKey('GameInfo', null=True, blank=True)
 
-	def begin_new_game(self, difficulty="easy", max_rounds=10, feedback_version="snarky", scoring_version=1):
+	def begin_new_game(self, difficulty="easy", max_rounds=1, feedback_version="snarky", scoring_version=1):
 
 		self.end_current_game()
 
@@ -62,7 +64,7 @@ class PlayerInfo(models.Model):
 		# count = Article.objects.all().count()
 		# return Article.objects.get(pk=random.randint(1, count))
 
-	def end_current_game(self):
+	def end_current_game(self, tot_time=None):
 
 		if self.current_game is None:
 			return None
@@ -82,7 +84,7 @@ class PlayerInfo(models.Model):
 		if game_is_being_cancelled:
 			g.was_cancelled = True
 
-		g.game_bonus = g.end_of_game_bonus() 
+		g.game_bonus = g.end_of_game_bonus(tot_time) 
 
 		g.total_score += g.game_bonus
 
@@ -110,7 +112,7 @@ class GameInfo(models.Model):
 	difficulty = models.CharField(max_length=16, choices=Article.DIFFICULTIES)
 	max_rounds = models.IntegerField(default=10)
 
-	max_time = models.IntegerField(default=1*60)
+	max_time = models.IntegerField(default=100*60)
 
 	feedback_version = models.CharField(max_length=16, choices=(('friendly', 'friendly'), ('snarky', 'snarky'),), default='friendly')
 	scoring_version = models.IntegerField(default=1)
@@ -128,12 +130,12 @@ class GameInfo(models.Model):
 
 	game_bonus = models.IntegerField(default=0)
 
-	max_passes = models.IntegerField(default=3)
+	max_passes = models.IntegerField(default=2)
 	total_passes = models.IntegerField(default=0)
 
 	@property
 	def total_time(self):
-		return sum(int(r.duration) for r in GameRound.objects.filter(game_info=self, is_completed=True))
+		return sum(int(r.duration) for r in GameRound.objects.filter(game_info=self, is_completed=True)) + 1
 
 	def started_articles(self):
 		pass
@@ -190,10 +192,16 @@ class GameInfo(models.Model):
 			round_score = -10
 		return round_score
 
-	def end_of_game_bonus(self):
+	def end_of_game_bonus(self, tot_time=None):
 		bonus = 0
-		if self.max_time > self.total_time or self.current_round_index>=self.max_rounds:
+		print 'Calc bonus', tot_time, self.total_time
+		if tot_time is None:
+			tot_time = self.total_time
+
+		if tot_time < self.max_time or self.current_round_index>=self.max_rounds:
+			print "Adding Bonus of 20"
 			bonus += 20
+		print "Bonus: %d, %d, %d, %d, %d" % (bonus, self.max_time, tot_time, self.current_round_index, self.max_rounds)
 		return bonus			
 
 	def __unicode__(self):
