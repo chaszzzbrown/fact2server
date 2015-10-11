@@ -17,4 +17,10 @@ urlpatterns = [
 	url(r'^game_round/(?P<pk>[0-9]+)/$', views.game_round_info),
 	url(r'^game_round_details/(?P<pk>[0-9]+)/$', views.game_round_full_info),
 
+	url(r'^game_settings/(?P<settings_name>\w+)/$', views.game_settings),
+	url(r'^article_stats/(?P<game_category>\w+)/$', views.article_stats),
+
+	url(r'^game_stats/(?P<game_category>\w+)/$', views.game_stats),
+	
+
 ]

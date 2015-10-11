@@ -1,7 +1,16 @@
 from django.forms import widgets
 
 from rest_framework import serializers
-from gameplay.models import PlayerInfo, GameInfo, GameRound
+from gameplay.models import PlayerInfo, GameInfo, GameRound, GameSettings
+
+class GameSettingsSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = GameSettings
+		fields = ('pk', 'name', 'difficulty', 'max_rounds', 'max_time', 'max_passes', 'correct_article_score', 
+						'incorrect_article_penalty', 'time_bonus', 'low_score_threshold', 'medium_score_threshold', 'game_round_list',)
+
+		read_only_fields = ('pk', )
 
 class GameRoundSerializer(serializers.ModelSerializer):
 
@@ -25,7 +34,7 @@ class GameInfoSerializer(serializers.ModelSerializer):
 		model = GameInfo
 		fields = ('pk', 'player_info', 'total_score', 'max_passes', 'total_passes', 'is_completed', 'difficulty', 'max_rounds', 'feedback_version', 'scoring_version', 
 					'created_time', 'modified_time', 'current_round', 'current_round_index', 'game_round_list', 'game_rounds', 'total_time', 'max_time', 
-					'game_bonus', )
+					'game_bonus', 'game_category', 'settings_name', 'low_score_threshold', 'medium_score_threshold', 'actual_time', 'got_bonus',)
 
 class GameInfoShortSerializer(serializers.ModelSerializer):
 
@@ -33,7 +42,7 @@ class GameInfoShortSerializer(serializers.ModelSerializer):
 		model = GameInfo
 		fields = ('pk', 'player_info', 'total_score', 'is_completed', 'difficulty', 'max_rounds', 'max_time', 'feedback_version', 'scoring_version', 
 					'created_time', 'modified_time', 'current_round', 'current_round_index', 'game_round_list', 'total_time',
-					'game_bonus', )
+					'game_bonus', 'game_category', 'settings_name',  'actual_time', 'got_bonus',)
 
 class PlayerInfoSerializer(serializers.ModelSerializer):
 	game_infos = GameInfoShortSerializer(many=True, read_only=True)

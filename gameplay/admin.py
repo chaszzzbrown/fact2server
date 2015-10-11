@@ -1,5 +1,5 @@
 from django.contrib import admin
-from . models import PlayerInfo, GameInfo, GameRound, GameRoundList
+from . models import PlayerInfo, GameInfo, GameRound, GameRoundList, GameSettings
 
 # Register your models here.
 admin.site.register(PlayerInfo)
@@ -11,3 +11,4 @@ class GameInfoAdmin(admin.ModelAdmin):
 
 admin.site.register(GameRound)
 admin.site.register(GameRoundList)
+admin.site.register(GameSettings)

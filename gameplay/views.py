@@ -10,8 +10,8 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from rest_framework import status
 
-from gameplay.models import PlayerInfo, GameInfo, GameRound
-from gameplay.serializers import PlayerInfoSerializer, GameInfoSerializer, GameRoundSerializer, GameRoundStatusSerializer
+from gameplay.models import PlayerInfo, GameInfo, GameRound, GameSettings
+from gameplay.serializers import PlayerInfoSerializer, GameInfoSerializer, GameRoundSerializer, GameRoundStatusSerializer, GameSettingsSerializer
 
 
 class JSONResponse(HttpResponse):
@@ -93,7 +93,12 @@ def player_begin_game(request, pk):
 		except PlayerInfo.DoesNotExist:
 			return HttpResponse('not found', status=status.HTTP_404_NOT_FOUND)
 
-		p.begin_new_game()
+		try:
+			data = json.loads(request.body)
+		except ValueError:
+			return HttpResponse('bad json', status=status.HTTP_400_BAD_REQUEST)
+
+		p.begin_new_game(**data)
 
 		serp = PlayerInfoSerializer(p)
 		serg = GameInfoSerializer(p.current_game)
@@ -121,7 +126,6 @@ def player_end_game(request, pk):
 	else:
 		return HttpResponse('must use POST', status=status.HTTP_400_BAD_REQUEST)
 
-@csrf_exempt
 def game_info(request, pk):
 
 	if request.method=='GET':
@@ -236,6 +240,51 @@ def game_round_full_info(request, pk, full_info=True):
 
 	else:
 		return HttpResponse('not permitted', status=status.HTTP_400_BAD_REQUEST)
+
+@csrf_exempt
+def game_settings(request, settings_name):
+
+	if request.method=='GET':
+		try:
+			gs = GameSettings.objects.get(name=settings_name)
+		except GameSettings.DoesNotExist:
+			return HttpResponse('not found', status=status.HTTP_404_NOT_FOUND)
+
+		gss = GameSettingsSerializer(gs)
+
+		return JSONResponse(gss.data, status=status.HTTP_200_OK)
+
+	elif request.method=='PUT':
+		try:
+			gs = GameSettings.objects.get(name=settings_name)
+		except GameSettings.DoesNotExist:
+			return HttpResponse('not found', status=status.HTTP_404_NOT_FOUND)
+
+		try:
+			data = json.loads(request.body)
+		except ValueError:
+			return HttpResponse('bad json', status=status.HTTP_400_BAD_REQUEST)
+
+		serializer = GameSettingsSerializer(gs, data=data, partial=True)
+		if serializer.is_valid():
+			serializer.save()
+			return HttpResponse('OK', status=status.HTTP_200_OK)
+		else:
+			return HttpResponse('invalid parameters', status=status.HTTP_400_BAD_REQUEST)
+
+	else:
+
+		return HttpResponse('not implemented; use PUT method '+request.method, status=status.HTTP_400_BAD_REQUEST)
+
+def article_stats(request, game_category):
+	stats = GameRound.get_stats_for(game_category)
+
+	return JSONResponse(stats, status=status.HTTP_200_OK)
+
+def game_stats(request, game_category):
+	stats = GameInfo.get_stats_for(game_category)
+
+	return JSONResponse(stats, status=status.HTTP_200_OK)
 
 
 
