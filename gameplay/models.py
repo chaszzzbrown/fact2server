@@ -123,6 +123,7 @@ class GameSettings(models.Model):
 
 	correct_article_score = models.IntegerField(default=40)
 	incorrect_article_penalty = models.IntegerField(default=10)
+	hint_penalty = models.IntegerField(default=5)
 
 	time_bonus = models.IntegerField(default=20)
 
@@ -209,6 +210,13 @@ class GameInfo(models.Model):
 		return list(stats)
 
 	@property
+	def hint_penalty(self):
+		if (self.game_settings):
+			return self.game_settings.hint_penalty
+		else:
+			return 0
+
+	@property
 	def total_time(self):
 		return sum(int(r.duration) for r in GameRound.objects.filter(game_info=self, is_completed=True)) + 1
 
@@ -286,6 +294,9 @@ class GameInfo(models.Model):
 			else:
 				round_score = - self.game_settings.incorrect_article_penalty
 
+			if round.show_info_requested:
+				round_score -= self.game_settings.hint_penalty
+
 		else:
 
 			if assume_correct or round.article.article_type==round.player_guess:
@@ -314,7 +325,7 @@ class GameInfo(models.Model):
 		if tot_time is None:
 			tot_time = self.total_time
 
-		if tot_time < self.max_time or self.current_round_index>=self.max_rounds:
+		if tot_time < self.max_time: # or self.current_round_index>=self.max_rounds:
 			if self.game_settings:
 				bonus += self.game_settings.time_bonus
 			else:

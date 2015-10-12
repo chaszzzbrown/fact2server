@@ -8,7 +8,7 @@ class GameSettingsSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = GameSettings
 		fields = ('pk', 'name', 'difficulty', 'max_rounds', 'max_time', 'max_passes', 'correct_article_score', 
-						'incorrect_article_penalty', 'time_bonus', 'low_score_threshold', 'medium_score_threshold', 'game_round_list',)
+						'incorrect_article_penalty', 'time_bonus', 'low_score_threshold', 'medium_score_threshold', 'game_round_list', 'hint_penalty',)
 
 		read_only_fields = ('pk', )
 
@@ -34,7 +34,7 @@ class GameInfoSerializer(serializers.ModelSerializer):
 		model = GameInfo
 		fields = ('pk', 'player_info', 'total_score', 'max_passes', 'total_passes', 'is_completed', 'difficulty', 'max_rounds', 'feedback_version', 'scoring_version', 
 					'created_time', 'modified_time', 'current_round', 'current_round_index', 'game_round_list', 'game_rounds', 'total_time', 'max_time', 
-					'game_bonus', 'game_category', 'settings_name', 'low_score_threshold', 'medium_score_threshold', 'actual_time', 'got_bonus',)
+					'game_bonus', 'game_category', 'settings_name', 'low_score_threshold', 'medium_score_threshold', 'actual_time', 'got_bonus', 'hint_penalty',)
 
 class GameInfoShortSerializer(serializers.ModelSerializer):
 
