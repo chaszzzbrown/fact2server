@@ -184,7 +184,7 @@ class GameInfo(models.Model):
 	def fixupfields():
 		for g in GameInfo.objects.all():
 			g.got_bonus = g.game_bonus>0
-			g.actual_time = g.total_time
+			g.actual_time = min(g.total_time, g.max_time)
 			g.save()
 
 	@staticmethod
@@ -206,7 +206,7 @@ class GameInfo(models.Model):
 	def get_stats_for(game_category):
 		stats = GameInfo.objects.filter(game_category=game_category, is_completed=True)
 		stats = stats.values('game_settings__name', 'difficulty')
-		stats = stats.annotate(average_score=Avg('total_score'), total_bonus_achieved=Sum('got_bonus'), average_bonus=Avg('game_bonus'), average_passes=Avg('total_passes'), total_played=Count('pk'))
+		stats = stats.annotate(average_score=Avg('total_score'), total_bonus_achieved=Sum('got_bonus'), average_time= Avg('actual_time'), average_bonus=Avg('game_bonus'), average_passes=Avg('total_passes'), total_played=Count('pk'))
 		return list(stats)
 
 	@property
@@ -218,7 +218,7 @@ class GameInfo(models.Model):
 
 	@property
 	def total_time(self):
-		return sum(int(r.duration) for r in GameRound.objects.filter(game_info=self, is_completed=True)) + 1
+		return min(sum(int(r.duration) for r in GameRound.objects.filter(game_info=self, is_completed=True)) + 1, self.max_time)
 
 	@property
 	def game_round_pks(self):

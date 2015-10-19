@@ -22,5 +22,4 @@ urlpatterns = [
 
 	url(r'^game_stats/(?P<game_category>\w+)/$', views.game_stats),
 	
-
 ]
