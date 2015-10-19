@@ -115,7 +115,11 @@ def player_end_game(request, pk):
 		except PlayerInfo.DoesNotExist:
 			return HttpResponse('not found', status=status.HTTP_404_NOT_FOUND)
 
-		data = json.loads(request.body)
+		try:
+			data = json.loads(request.body)
+		except:
+			data = {}
+			
 		tot_time = data.get('tot_time', None)
 		ended_game = p.end_current_game(tot_time)
 
