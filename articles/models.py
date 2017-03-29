@@ -8,11 +8,13 @@ import datetime
 class Article(models.Model):
 
 	NEWS = 'news'
+	NOT_NEWS = 'notNews'
 	ADVERTISING = 'advertising'
 	OPINION = 'opinion'
 	ENTERTAINMENT = 'entertainment'
 	ARTICLE_TYPES = (
 		(NEWS, 'News'),
+		(NOT_NEWS, 'Not News'),
 		(ADVERTISING, 'Advertising'),
 		(OPINION, 'Opinion'),
 		(ENTERTAINMENT, 'Entertainment'),
@@ -42,6 +44,14 @@ class Article(models.Model):
 	source_URL = models.TextField(default='', blank=True)
 	created_date = models.DateField(auto_now_add=True)
 	modified_date = models.DateField(auto_now=True)
+
+	# factv2 reorganized fields
+	body = models.TextField(default='', blank=True)
+	articleType = models.CharField(max_length=32, choices=((NEWS, 'News'), (NOT_NEWS, 'Not News')), default='news')
+	sourceHint = models.TextField(default='', blank=True)
+	payoffSourceLabel = models.TextField(max_length=160, blank=True, default='')
+	payoffSourceUrl = models.TextField(blank=True, default='')
+	payoffContent = models.TextField(default='', blank=True)
 
 	class Meta:
 		ordering = ('-created_date',)
@@ -89,6 +99,45 @@ class Article(models.Model):
 
 	def __unicode__(self):
 		return '('+self.id_from_pk()+') '+self.headline+' ['+self.article_type+']'
+
+	def forJSON_V2(self):
+		return {
+			'article_id': self.id_from_pk(),
+			'articleType': self.articleType,
+			'headline': self.headline,
+			'photo_url': self.photo.url if self.photo else '/media/default_im.png',
+			'body': self.body,
+			'sourceHint': self.sourceHint,
+			'payoffSourceLabel': self.payoffSourceLabel,
+			'payoffSourceUrl': self.payoffSourceUrl,
+			'payoffContent': self.payoffContent,
+			'pk': self.pk,
+		}
+
+	def updateToV2(self):
+
+		def cleanupEOL(s):
+			return s.replace('\r\n', '\n').strip()
+
+		self.articleType = Article.NEWS if self.article_type==Article.NEWS else Article.NOT_NEWS
+
+		chunks = [cleanupEOL(chunk) for chunk in [self.chunk1, self.chunk2, self.chunk3]]
+		self.body = '\n\n'.join(chunk for chunk in chunks if chunk)
+
+		self.sourceHint = '\n\n'.join(sline for sline in cleanupEOL(self.source).split('\n') if sline)
+
+		if self.references:
+			refLines = [rLine for rLine in cleanupEOL(self.references).split('\n') if rLine]
+			sourceName = refLines[0]
+
+			if sourceName.startswith('Source:'):
+				self.payoffSourceLabel = sourceName.replace('Source:','').strip()
+				refLines = refLines[1:]
+
+			self.payoffContent = '\n\n'.join(refLines)
+
+		self.payoffSourceUrl = self.source_URL.split('\n')[0].replace('"','').strip()
+
 
 
 

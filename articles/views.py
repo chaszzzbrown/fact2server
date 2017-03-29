@@ -20,7 +20,8 @@ def article_json(request, article_id):
 	pk = article_id # Article.pk_from_id(article_id)
 
 	article = Article.objects.get(pk=pk)
-	return HttpResponse(json.dumps(article.forJSON()))
+	article.updateToV2()
+	return HttpResponse(json.dumps(article.forJSON_V2()))
 
 def all_articles(request):
 
