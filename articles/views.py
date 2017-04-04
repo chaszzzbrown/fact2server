@@ -20,7 +20,8 @@ def article_json(request, article_id):
 	pk = article_id # Article.pk_from_id(article_id)
 
 	article = Article.objects.get(pk=pk)
-	article.updateToV2()
+	if not article.body:
+		article.updateToV2()
 	return HttpResponse(json.dumps(article.forJSON_V2()))
 
 def all_articles(request):
@@ -30,45 +31,48 @@ def all_articles(request):
 	return HttpResponse(json.dumps(res))
 
 
-@api_view(['POST'])
-@permission_classes((IsAuthenticated, ))
-def put_article(request):
-	return HttpResponse('OK '+request.body)
+@api_view(['GET'])
+# @permission_classes((IsAuthenticated, ))
+def get_blank_article(request):
+	blank = Article()
+	return HttpResponse(json.dumps(blank.forJSON_V2()))
 
 @api_view(['POST'])
 # @permission_classes((IsAuthenticated, ))
-def put_article_image(request):
-	print "Trying"
-	print request.POST.keys()
+def put_article(request):
 
-	pk = request.POST['pk']
+	if 'pk' in request.POST:
+		article = Article.objects.get(pk=request.POST['pk'])
+	else:
+		article = Article.objects.create()
 
 	photoFile = request.FILES.get('photo', None)
 
-	im = Image.open(photoFile)
+	if photoFile:
 
-	width, height = im.size
+		im = Image.open(photoFile)
 
-	maxDimension = 420.0
-	scaling = min(maxDimension/width, maxDimension/height)
-	scaling = maxDimension/width
+		width, height = im.size
 
-	if scaling<1.0:
-		im.thumbnail((scaling*width, scaling*height), Image.ANTIALIAS)
-		print 'rescaled'
+		maxDimension = 420.0
+		scaling = min(maxDimension/width, maxDimension/height)
+		scaling = maxDimension/width
 
-	fs = FileSystemStorage()
+		if scaling<1.0:
+			im.thumbnail((scaling*width, scaling*height), Image.ANTIALIAS)
 
-	print 'opening "'+photoFile.name+'"'
-	with fs.open(photoFile.name, 'wb') as pf:
-		print 'saving'
-		im.save(pf)
-		print 'saved'
+		fs = FileSystemStorage()
 
-	article = Article.objects.get(pk=pk)
+		with fs.open(photoFile.name, 'wb') as pf:
+			im.save(pf)
 
-	article.photo = fs.url(photoFile.name)
+		article.photo = fs.url(photoFile.name)
+
+	for key in request.POST.keys():
+		if key != 'pk':
+			setattr(article, key, request.POST[key])
+
 	article.save()
 
+	return HttpResponse(json.dumps(article.forJSON_V2()))
 
-	return HttpResponse('OK '+fs.url(photoFile.name))
