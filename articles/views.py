@@ -10,7 +10,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from . models import Article
+from . models import Article, MAX_IMAGE_SIZE
 
 import json
 
@@ -54,7 +54,7 @@ def put_article(request):
 
 		width, height = im.size
 
-		maxDimension = 420.0
+		maxDimension = MAX_IMAGE_SIZE
 		scaling = min(maxDimension/width, maxDimension/height)
 		scaling = maxDimension/width
 

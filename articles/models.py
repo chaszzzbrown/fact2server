@@ -3,7 +3,7 @@ from django.db import models
 import re
 import datetime
 
-# Create your models here.
+MAX_IMAGE_SIZE = 420.0
 
 class Article(models.Model):
 
@@ -128,16 +128,26 @@ class Article(models.Model):
 
 		if self.references:
 			refLines = [rLine for rLine in cleanupEOL(self.references).split('\n') if rLine]
-			sourceName = refLines[0]
+			if len(refLines)>0:
+				sourceName = refLines[0]
 
-			if sourceName.startswith('Source:'):
-				self.payoffSourceLabel = sourceName.replace('Source:','').strip()
-				refLines = refLines[1:]
+				if sourceName.startswith('Source:'):
+					self.payoffSourceLabel = sourceName.replace('Source:','').strip()
+					refLines = refLines[1:]
 
-			self.payoffContent = '\n\n'.join(refLines)
+				self.payoffContent = '\n\n'.join(refLines)
 
 		self.payoffSourceUrl = self.source_URL.split('\n')[0].replace('"','').strip()
 
+# utility function for migrating to V2...
+def updateAllToV2():
+	for a in Article.objects.all():
+		if not a.body:
+			a.updateToV2()
+			a.save()
+
+def goodArticlePks():
+	return [a.pk for a in Article.objects.all() if a.payoffContent]
 
 
 
