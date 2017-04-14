@@ -43,6 +43,7 @@ INSTALLED_APPS = (
 
     'articles',
     'gameplay',
+    'gameplay2',
     'f2auth',
 
 )
