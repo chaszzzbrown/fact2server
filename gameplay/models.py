@@ -370,7 +370,7 @@ class GameRound(models.Model):
 		return (self.end_time-self.start_time).total_seconds()
 
 	def __unicode__(self):
-		return self.game_info.__unicode__()+ ' [round ' + ('completed' if self.is_completed else 'in play') + '] '+self.article.__unicode__()
+		return 'GameRound '+str(self.pk) ## + ' [round ' + ('completed' if self.is_completed else 'in play') + '] '+self.article.__unicode__()
 
 class GameRoundList(models.Model):
 
