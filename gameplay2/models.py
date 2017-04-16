@@ -87,13 +87,10 @@ class GamePlay(models.Model):
 
 class ArticlePlay(models.Model):
 	created_date = models.DateTimeField(auto_now_add=True)
-	modified_date = models.DateTimeField(auto_now=True)
-
-	is_completed = models.BooleanField(default=False)
-	was_cancelled = models.BooleanField(default=False)
 
 	total_time_seconds = models.IntegerField(default=0)
 	was_correct = models.BooleanField(default=False)
+	showed_hint = models.BooleanField(default=False)
 
 	article = models.ForeignKey(Article)
 	player_info = models.ForeignKey(PlayerInfo)
