@@ -11,6 +11,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from gameplay2.models import *
 from gameplay2.serializers import *
 
+from gameplay2 import tracking
+
 class JSONResponse(HttpResponse):
     """
     An HttpResponse that renders its content into JSON.
@@ -140,4 +142,26 @@ def game_settings(request):
 
 	else:
 		return HttpResponse('Only GET and POST are supported', status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def track_article(request):
+	a_data = request.data
+
+	try:
+		p = PlayerInfo.objects.get(pk=a_data['player_pk'])
+	except PlayerInfo.DoesNotExist:
+		return HttpResponse('Player does not exist', status=status.HTTP_400_BAD_REQUEST)
+
+	try:
+		a = Article.objects.get(pk=a_data['article_pk'])
+	except Article.DoesNotExist:
+		return HttpResponse('Article does not exist', status=status.HTTP_400_BAD_REQUEST)
+
+	ArticlePlay.objects.create(player_info=p, article=a, 
+			total_time_seconds=a_data['total_time_seconds'], was_correct=a_data['was_correct'], showed_hint=a_data['showed_hint'])
+
+	return HttpResponse('OK', status=status.HTTP_200_OK)
+
+def get_article_stats(request):
+	return JSONResponse(tracking.articlePlayStatsForDisplay(), status=status.HTTP_200_OK)
 

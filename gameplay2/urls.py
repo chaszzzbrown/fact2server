@@ -15,5 +15,8 @@ urlpatterns = [
 
 	url(r'^game_settings/$', views.game_settings),
 
+	url(r'^track_article/$', views.track_article),
+
+	url(r'^get_article_stats/$', views.get_article_stats),
 
 ]
