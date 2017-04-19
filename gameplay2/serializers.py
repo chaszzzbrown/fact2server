@@ -64,7 +64,7 @@ class PlayerInfoSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = PlayerInfo
 		fields = ('pk', 'username', 'has_completed_survey', 'age', 'gender', 'education', 'computer_use', 
-					'news_media_savvy', 'news_source', 'current_game', 'game_plays',)
+					'news_media_savvy', 'news_source', 'current_game', 'game_plays', 'is_anonymous')
 		read_only_fields = ('pk', 'current_game', 'game_plays',)
 
 

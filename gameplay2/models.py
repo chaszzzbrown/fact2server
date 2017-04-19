@@ -1,7 +1,10 @@
 from django.db import models
-from articles.models import Article
+from django.utils import timezone
 
+import datetime
 import json
+
+from articles.models import Article
 
 class PlayerInfo(models.Model):
 
@@ -37,7 +40,12 @@ class PlayerInfo(models.Model):
 
 	has_completed_survey = models.BooleanField(default=False)
 
+	is_anonymous = models.BooleanField(default=False)
+
 	current_game = models.ForeignKey('GamePlay', null=True, blank=True)
+
+	def __unicode__(self):
+		return 'username '+self.username
 
 class GameSettings(models.Model):
 
@@ -84,6 +92,20 @@ class GamePlay(models.Model):
 	@game_settings.setter
 	def game_settings(self, value):
 		self.game_settings_json = json.dumps(value)
+
+	def __unicode__(self):
+		return str(self.created_date)+'  '+self.game_outcome
+
+	@property
+	def game_outcome(self):
+		if self.is_completed:
+			return 'completed'
+		elif self.was_cancelled:
+			return 'cancelled'
+		elif (timezone.now()-self.created_date).total_seconds()>48*3600:
+			return 'abandoned'
+		else:
+			return 'inPlay'
 
 class ArticlePlay(models.Model):
 	created_date = models.DateTimeField(auto_now_add=True)

@@ -18,5 +18,6 @@ urlpatterns = [
 	url(r'^track_article/$', views.track_article),
 
 	url(r'^get_article_stats/$', views.get_article_stats),
+	url(r'^get_game_play_stats/$', views.get_game_play_stats),
 
 ]

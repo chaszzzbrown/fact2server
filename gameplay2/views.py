@@ -1,7 +1,9 @@
 from django.shortcuts import render
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseNotAllowed
+from django.utils import dateparse
 
+import datetime
 import json
 
 from rest_framework import status
@@ -46,7 +48,19 @@ def player_info(request, pk=None):
 		return JSONResponse(serializer.data, status=status.HTTP_200_OK)
 
 	elif request.method=='POST':
-		return HttpResponse('POST not implemented yet', status=status.HTTP_400_BAD_REQUEST)
+		try:
+			username = request.data['username']
+		except (KeyError, ValueError,):
+			return HttpResponse('no username specified', status=status.HTTP_400_BAD_REQUEST)
+
+		p, created = PlayerInfo.objects.get_or_create(username=username)
+
+		serializer = PlayerInfoSerializer(p, data=request.data, partial=True)
+		if serializer.is_valid():
+			serializer.save()
+			return JSONResponse(serializer.data, status=status.HTTP_200_OK)
+		else:
+			return HttpResponse('Invalid data', status=status.HTTP_400_BAD_REQUEST)
 	else:
 		return HttpResponse('Only GET or POST are accepted', status=status.HTTP_400_BAD_REQUEST)
 
@@ -62,7 +76,7 @@ def player_begin_game(request, pk, do_create=True):
 		return HttpResponse('not found', status=status.HTTP_404_NOT_FOUND)
 
 	# if existing game, then cancel it
-	if p.current_game:
+	if p.current_game and not p.current_game.is_completed:
 		p.current_game.was_cancelled = True
 		p.current_game.save()
 
@@ -163,5 +177,28 @@ def track_article(request):
 	return HttpResponse('OK', status=status.HTTP_200_OK)
 
 def get_article_stats(request):
-	return JSONResponse(tracking.articlePlayStatsForDisplay(), status=status.HTTP_200_OK)
+	if 'start_date' in request.GET:
+		start_date = dateparse.parse_datetime(request.GET['start_date'])
+		if 'end_date' in request.GET:
+			end_date = dateparse.parse_datetime(request.GET['end_date'])
+		else:
+			end_date = timezone.now()
+	else:
+		start_date = None
+		end_date = None
+
+	return JSONResponse(tracking.articlePlayStatsForDisplay(start_date, end_date), status=status.HTTP_200_OK)
+
+def get_game_play_stats(request):
+	if 'start_date' in request.GET:
+		start_date = dateparse.parse_datetime(request.GET['start_date'])
+		if 'end_date' in request.GET:
+			end_date = dateparse.parse_datetime(request.GET['end_date'])
+		else:
+			end_date = timezone.now()
+	else:
+		start_date = None
+		end_date = None
+
+	return JSONResponse(list(tracking.gamePlayStats(start_date, end_date)), status=status.HTTP_200_OK)
 
