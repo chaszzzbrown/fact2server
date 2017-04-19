@@ -200,5 +200,5 @@ def get_game_play_stats(request):
 		start_date = None
 		end_date = None
 
-	return JSONResponse(list(tracking.gamePlayStats(start_date, end_date)), status=status.HTTP_200_OK)
+	return JSONResponse(tracking.gamePlayStats(start_date, end_date), status=status.HTTP_200_OK)
 
