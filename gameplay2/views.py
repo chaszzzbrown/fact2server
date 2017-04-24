@@ -122,7 +122,6 @@ def game_play(request, pk):
 		return JSONResponse(g_serializer.data, status=status.HTTP_200_OK)
 	elif request.method=='POST':
 		g_serializer = GamePlaySerializer(g, data=request.data, partial=True)
-		print request.data['game_state']
 		if g_serializer.is_valid():
 			g.game_state = request.data['game_state']
 			g_serializer.save()

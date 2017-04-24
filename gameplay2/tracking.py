@@ -139,7 +139,6 @@ def gamePlayStats(start_date, end_date, articleList=None):
 	for row in list(stats):
 		by_outcome['inPlay'] = row
 
-	print by_outcome
 	return by_outcome
 
 
