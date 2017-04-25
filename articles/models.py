@@ -24,24 +24,31 @@ class Article(models.Model):
 
 	enabled = models.BooleanField(default=True)
 
+	'''
 	article_type = models.CharField(max_length=32, choices=ARTICLE_TYPES, default='news')
 	difficulty = models.CharField(max_length=16, choices=DIFFICULTIES, default='easy')
 	layout = models.CharField(max_length=16, choices=LAYOUTS, default='layout1')
+	'''
 
 	headline = models.TextField(default='', blank=True)
 	photo = models.ImageField(blank=True)
+
+	'''
 	chunk1 = models.TextField(default='', blank=True)
 	chunk2 = models.TextField(default='', blank=True)
 	chunk3 = models.TextField(default='', blank=True)
+	'''
 
 	# for the "show info" dialog
+	'''
 	source = models.TextField(max_length=160, blank=True, default='')
 	author = models.TextField(max_length=160, blank=True, default='')
 	references = models.TextField(blank=True, default='')
 	tone = models.CharField(max_length=80, default='', blank=True)
+	'''
 
 	# adminn-ing
-	source_URL = models.TextField(default='', blank=True)
+	# source_URL = models.TextField(default='', blank=True)
 	created_date = models.DateField(auto_now_add=True)
 	modified_date = models.DateField(auto_now=True)
 
@@ -91,14 +98,13 @@ class Article(models.Model):
 	def forJSONList(self):
 		return { 
 			'article_id': self.id_from_pk(),
-			'article_type': self.article_type,
-			'difficulty': self.difficulty,
+			'article_type': self.articleType,
 			'headline': self.headline,
 			'pk': self.pk,
 		}
 
 	def __unicode__(self):
-		return '('+self.id_from_pk()+') '+self.headline+' ['+self.article_type+']'
+		return '('+self.id_from_pk()+') '+self.headline+' ['+self.articleType+']'
 
 	def forJSON_V2(self):
 		return {
