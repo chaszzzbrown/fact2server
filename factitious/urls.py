@@ -20,14 +20,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from articles import urls as article_urls
-from gameplay import urls as gameplay_urls
 from gameplay2 import urls as gameplay2_urls
 from f2auth import urls as f2auth_urls
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/article/', include(article_urls)),
-    url(r'^api/gameplay/', include(gameplay_urls)),
     url(r'^api/gameplay2/', include(gameplay2_urls)),
     url(r'^api/f2auth/', include(f2auth_urls)),
 

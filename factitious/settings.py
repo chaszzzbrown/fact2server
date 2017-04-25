@@ -42,7 +42,7 @@ INSTALLED_APPS = (
     'rest_framework.authtoken',
 
     'articles',
-    'gameplay',
+    # 'gameplay',
     'gameplay2',
     'f2auth',
 
