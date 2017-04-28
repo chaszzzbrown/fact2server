@@ -60,6 +60,8 @@ class Article(models.Model):
 	payoffSourceUrl = models.TextField(blank=True, default='')
 	payoffContent = models.TextField(default='', blank=True)
 
+	notes = models.TextField(default='', blank=True)
+
 	class Meta:
 		ordering = ('-created_date',)
 
@@ -117,6 +119,7 @@ class Article(models.Model):
 			'payoffSourceLabel': self.payoffSourceLabel,
 			'payoffSourceUrl': self.payoffSourceUrl,
 			'payoffContent': self.payoffContent,
+			'notes': self.notes,
 			'pk': self.pk,
 		}
 
