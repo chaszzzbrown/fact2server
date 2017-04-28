@@ -26,7 +26,7 @@ def article_json(request, article_id):
 
 def all_articles(request):
 
-	res = [a.forJSONList() for a in Article.objects.all()]
+	res = [a.forJSONList() for a in Article.objects.all().order_by('-pk')]
 
 	return HttpResponse(json.dumps(res))
 
