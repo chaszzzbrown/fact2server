@@ -10,9 +10,9 @@ def articlePlayStats(start_date, end_date, articleList=None):
 	# optional filter(s) on ArticlePlays; e.g.
 	# stats = stats.filter(articleplay__showed_hint=True)
 	if start_date:
-		start_date = datetime.datetime(start_date.year, start_date.month, start_date.day)
+		start_date = timezone.make_aware(datetime.datetime(start_date.year, start_date.month, start_date.day))
 		if end_date:
-			end_date = datetime.datetime(end_date.year, end_date.month, end_date.day)+datetime.timedelta(days=1)
+			end_date = timezone.make_aware(datetime.datetime(end_date.year, end_date.month, end_date.day)+datetime.timedelta(days=1))
 			stats = stats.filter(articleplay__created_date__lte=end_date, articleplay__created_date__gte=start_date)
 		else:
 			stats = stats.filter(articleplay__created_date__gte=start_date)

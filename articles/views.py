@@ -5,6 +5,7 @@ from django.core.files.storage import FileSystemStorage
 
 import json
 from PIL import Image
+import urllib
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -66,7 +67,7 @@ def put_article(request):
 		with fs.open(photoFile.name, 'wb') as pf:
 			im.save(pf)
 
-		article.photo = fs.url(photoFile.name)
+		article.photo = urllib.unquote(fs.url(photoFile.name))
 
 	for key in request.POST.keys():
 		if key != 'pk':
