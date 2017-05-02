@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseNotAllowed
 from django.utils import dateparse
+from django.utils.encoding import smart_str
 
 import datetime
 import json
@@ -200,4 +201,65 @@ def get_game_play_stats(request):
 		end_date = None
 
 	return JSONResponse(tracking.gamePlayStats(start_date, end_date), status=status.HTTP_200_OK)
+
+def download_database(request):
+	dbname = settings.DATABASES['default']['NAME']	
+
+	response = HttpResponse()
+	with open(dbname, 'rb') as f:
+		response.content = f.read()
+	response["Content-Disposition"] = "attachment; filename={0}".format(
+	        'dbDown.sqlite3')
+	return response
+
+def article_plays_csv(request):
+	if 'start_date' in request.GET:
+		start_date = dateparse.parse_datetime(request.GET['start_date'])
+		if 'end_date' in request.GET:
+			end_date = dateparse.parse_datetime(request.GET['end_date'])
+		else:
+			end_date = timezone.now()
+	else:
+		start_date = None
+		end_date = None
+
+	response = HttpResponse(content_type='text/csv')
+	response.content = tracking.get_article_plays(start_date, end_date)
+	response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'	
+	
+	return response
+
+def game_plays_csv(request):
+	if 'start_date' in request.GET:
+		start_date = dateparse.parse_datetime(request.GET['start_date'])
+		if 'end_date' in request.GET:
+			end_date = dateparse.parse_datetime(request.GET['end_date'])
+		else:
+			end_date = timezone.now()
+	else:
+		start_date = None
+		end_date = None
+
+	response = HttpResponse(content_type='text/csv')
+	response.content = tracking.get_game_plays(start_date, end_date)
+	response['Content-Disposition'] = 'attachment; filename="somegamename.csv"'	
+	
+	return response
+
+def player_infos_csv(request):
+	if 'start_date' in request.GET:
+		start_date = dateparse.parse_datetime(request.GET['start_date'])
+		if 'end_date' in request.GET:
+			end_date = dateparse.parse_datetime(request.GET['end_date'])
+		else:
+			end_date = timezone.now()
+	else:
+		start_date = None
+		end_date = None
+
+	response = HttpResponse(content_type='text/csv')
+	response.content = tracking.get_player_infos(start_date, end_date)
+	response['Content-Disposition'] = 'attachment; filename="someplayersname.csv"'	
+	
+	return response
 

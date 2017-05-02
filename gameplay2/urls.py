@@ -20,4 +20,9 @@ urlpatterns = [
 	url(r'^get_article_stats/$', views.get_article_stats),
 	url(r'^get_game_play_stats/$', views.get_game_play_stats),
 
+	url(r'^download_database/$', views.download_database),
+	url(r'^article_plays_csv/$', views.article_plays_csv),
+	url(r'^game_plays_csv/$', views.game_plays_csv),
+	url(r'^player_infos_csv/$', views.player_infos_csv),
+
 ]
