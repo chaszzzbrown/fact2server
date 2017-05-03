@@ -209,7 +209,7 @@ def download_database(request):
 	with open(dbname, 'rb') as f:
 		response.content = f.read()
 	response["Content-Disposition"] = "attachment; filename={0}".format(
-	        'dbDown.sqlite3')
+	        'factitious.db.sqlite3')
 	return response
 
 def article_plays_csv(request):
@@ -225,7 +225,7 @@ def article_plays_csv(request):
 
 	response = HttpResponse(content_type='text/csv')
 	response.content = tracking.get_article_plays(start_date, end_date)
-	response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'	
+	response['Content-Disposition'] = 'attachment; filename="articlePlays.csv"'	
 	
 	return response
 
@@ -242,7 +242,7 @@ def game_plays_csv(request):
 
 	response = HttpResponse(content_type='text/csv')
 	response.content = tracking.get_game_plays(start_date, end_date)
-	response['Content-Disposition'] = 'attachment; filename="somegamename.csv"'	
+	response['Content-Disposition'] = 'attachment; filename="gamePlays.csv"'	
 	
 	return response
 
@@ -259,7 +259,7 @@ def player_infos_csv(request):
 
 	response = HttpResponse(content_type='text/csv')
 	response.content = tracking.get_player_infos(start_date, end_date)
-	response['Content-Disposition'] = 'attachment; filename="someplayersname.csv"'	
+	response['Content-Disposition'] = 'attachment; filename="playerInfos.csv"'	
 	
 	return response
 
