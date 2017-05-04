@@ -9,7 +9,7 @@ import json
 
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
 
 from gameplay2.models import *
 from gameplay2.serializers import *
@@ -133,7 +133,7 @@ def game_play(request, pk):
 		return HttpResponse('Only GET and POST are supported', status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST'])
-# @permission_classes((AllowAny, ))
+@permission_classes((IsAuthenticatedOrReadOnly, ) if settings.ENFORCE_FACT2_AUTHORIZATION else (AllowAny,))
 def game_settings(request):
 
 	if request.method=="GET":
@@ -149,6 +149,7 @@ def game_settings(request):
 
 		settings, created = GameSettings.objects.get_or_create()
 		settings.game_settings_json = json.dumps(res)
+		
 		settings.save()
 
 		res['modified_date'] = settings.modified_date.isoformat()

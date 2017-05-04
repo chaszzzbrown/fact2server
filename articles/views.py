@@ -8,7 +8,7 @@ from PIL import Image
 import urllib
 
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from . models import Article, MAX_IMAGE_SIZE
@@ -39,7 +39,8 @@ def get_blank_article(request):
 	return HttpResponse(json.dumps(blank.forJSON_V2()))
 
 @api_view(['POST'])
-# @permission_classes((IsAuthenticated, ))
+# @permission_classes((IsAuthenticated, ) if settings.ENFORCE_FACT2_AUTHORIZATION else (AllowAny,))
+# @permission_classes((AllowAny, ))
 def put_article(request):
 
 	if 'pk' in request.POST:

@@ -25,7 +25,7 @@ SECRET_KEY = '4i@q&)^@!zqkzfdvmy*2$v)+4#z$&eoz@ckzb#-yml&(3@#5^p'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -42,7 +42,6 @@ INSTALLED_APPS = (
     'rest_framework.authtoken',
 
     'articles',
-    # 'gameplay',
     'gameplay2',
     'f2auth',
 
@@ -51,7 +50,10 @@ INSTALLED_APPS = (
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
-    )
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+       'rest_framework.permissions.AllowAny',
+    ),
 }
 
 MIDDLEWARE_CLASSES = (
@@ -122,6 +124,6 @@ STATICFILES_DIRS = (
 MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, '../media'))
 MEDIA_URL = '/media/'
 
-
+ENFORCE_FACT2_AUTHORIZATION = False
 
 
