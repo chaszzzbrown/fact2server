@@ -102,7 +102,7 @@ class GamePlay(models.Model):
 			return 'completed'
 		elif self.was_cancelled:
 			return 'cancelled'
-		elif (timezone.now()-self.created_date).total_seconds()>48*3600:
+		elif (timezone.now()-self.modified_date).total_seconds()>8*3600:
 			return 'abandoned'
 		else:
 			return 'inPlay'
