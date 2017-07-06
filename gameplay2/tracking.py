@@ -94,9 +94,9 @@ def gamePlayStats(start_date, end_date, articleList=None):
 
 	by_outcome = {}
 	for row in list(stats):
-		if row['is_completed']:
+		if row['is_completed'] and not row['was_cancelled']:
 			by_outcome['completed'] = row
-		elif row['was_cancelled']:
+		elif row['was_cancelled'] and not row['is_completed']:
 			by_outcome['cancelled'] = row
 
 	# next the abndoned games...
