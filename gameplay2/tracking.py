@@ -1,12 +1,14 @@
 from django.db.models import Count, Sum, Avg, F, Q
 from django.utils import timezone
 import datetime
+import json
 
 from . models import *
 
-APKS = [149, 148, 147, 146, 145, 144, 143, 142, 141, 140, 139, 138, 137, 136, 135, 134, 133, 132, 131, 130, 129, 128, 125, 124, 123, 122, 121, 120, 118, 108, 107, 104, 101, 100, 94, 87, 83, 70, 64, 27, 24, 12, 11, 7]
-
-
+def getPks():
+	g = GameSettings.objects.all()[0]
+	gs = json.loads(g.game_settings_json)
+	return sorted(sum((r['articleIds'] for r in gs['roundInfo']),[]))[::-1]
 
 def articlePlayStats(start_date, end_date, articleList=None):
 	stats = Article.objects
@@ -36,7 +38,10 @@ def articlePlayStats(start_date, end_date, articleList=None):
 
 	return stats
 
-def articlePlayStatsForDisplay(start_date, end_date, articleList=APKS):
+def articlePlayStatsForDisplay(start_date, end_date, articleList=None):
+
+	if not articleList:
+		articleList = getPks()
 
 	stats = []
 
