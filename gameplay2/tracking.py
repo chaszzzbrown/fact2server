@@ -7,6 +7,7 @@ from . models import *
 APKS = [149, 148, 147, 146, 145, 144, 143, 142, 141, 140, 139, 138, 137, 136, 135, 134, 133, 132, 131, 130, 129, 128, 125, 124, 123, 122, 121, 120, 118, 108, 107, 104, 101, 100, 94, 87, 83, 70, 64, 27, 24, 12, 11, 7]
 
 
+
 def articlePlayStats(start_date, end_date, articleList=None):
 	stats = Article.objects
 
@@ -21,23 +22,31 @@ def articlePlayStats(start_date, end_date, articleList=None):
 			stats = stats.filter(articleplay__created_date__gte=start_date)
 
 
+	# optional post filter on articles; e.g.:
+	if articleList:
+		stats = stats.filter(pk__in=articleList)
+
 	# perform the annotation
 	stats= stats.annotate(	num_plays=Count('articleplay'), 
 							num_correct=Sum('articleplay__was_correct'), 
 							num_hints=Sum('articleplay__showed_hint'), 
 							avg_time=Avg('articleplay__total_time_seconds'))
 
-	# optional post filter on articles; e.g.:
-	if articleList:
-		stats = stats.filter(pk__in=articleList)
-
-	stats.order_by('-pk')
+	# stats.order_by('-pk')
 
 	return stats
 
 def articlePlayStatsForDisplay(start_date, end_date, articleList=APKS):
 
-	stats = list(articlePlayStats(start_date, end_date, articleList).order_by('-pk').filter(num_plays__gt=0))
+	stats = []
+
+	while articleList:
+		apk = articleList[:5]
+		articleList = articleList[min(len(articleList),5):]
+		print apk
+		stats += list(articlePlayStats(start_date, end_date, apk).order_by('-pk').filter(num_plays__gt=0))
+	print 'Done'
+	# stats = list(articlePlayStats(start_date, end_date, articleList).order_by('-pk').filter(num_plays__gt=0))
 
 	allArticles = Article.objects.all()
 	if articleList:
