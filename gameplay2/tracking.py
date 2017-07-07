@@ -1,5 +1,6 @@
 from django.db.models import Count, Sum, Avg, F, Q
 from django.utils import timezone
+from django.conf import settings
 import datetime
 import json
 
@@ -40,18 +41,22 @@ def articlePlayStats(start_date, end_date, articleList=None):
 
 def articlePlayStatsForDisplay(start_date, end_date, articleList=None):
 
-	if not articleList:
-		articleList = getPks()
+	print settings.BASE_DIR
 
-	stats = []
+	if settings.BASE_DIR.startswith('/Users/charlieb/Documents/'):
+		# for some reason, this is like 100 times faster on my laptop...
+		stats = list(articlePlayStats(start_date, end_date, articleList).order_by('-pk').filter(num_plays__gt=0))
+	else:
+		if not articleList:
+			articleList = getPks()
 
-	while articleList:
-		apk = articleList[:5]
-		articleList = articleList[min(len(articleList),5):]
-		print apk
-		stats += list(articlePlayStats(start_date, end_date, apk).order_by('-pk').filter(num_plays__gt=0))
-	print 'Done'
-	# stats = list(articlePlayStats(start_date, end_date, articleList).order_by('-pk').filter(num_plays__gt=0))
+		stats = []
+
+		sliceSize = 20
+		while articleList:
+			apk = articleList[:sliceSize]
+			articleList = articleList[min(len(articleList),sliceSize):]
+			stats += list(articlePlayStats(start_date, end_date, apk).order_by('-pk').filter(num_plays__gt=0))
 
 	allArticles = Article.objects.all()
 	if articleList:
