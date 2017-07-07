@@ -52,7 +52,7 @@ def articlePlayStatsForDisplay(start_date, end_date, articleList=None):
 
 		stats = []
 
-		sliceSize = 20
+		sliceSize = 50
 		while articleList:
 			apk = articleList[:sliceSize]
 			articleList = articleList[min(len(articleList),sliceSize):]
