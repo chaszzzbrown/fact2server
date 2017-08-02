@@ -80,7 +80,7 @@ You do not need to "re-activate" the enviroment to restart the server as long as
 
 To stop using the environment (for some reason?) just type:
 
-    `deactivate`
+    deactivate
 
 and the environment will stop being used (and the `(env)` will go away from your command prompt).
 
