@@ -26,7 +26,7 @@ If the `db.sqlite3` file is large (>10 Megabytes), it is better to `ssh` in to t
 
 To do this without going through the whole shelling-in process, you can just do this (assuming your user name is `rahaf`):
 
-    ssh rahaf@augamestudio.com cp /home/django/factitious_project/server/factitious_app/db.sqlite3 ~/db.sqlite3
+    ssh rehaf@factitious.augamestudio.com cp /home/django/factitious_project/server/factitious_app/db.sqlite3 /home/rehaf/db.sqlite3
 
 (You will be asked for your password). This tells the server to copy the file to your home directory on the *remote* server. Then you can use FTP to copy the copy to your machine.
 
